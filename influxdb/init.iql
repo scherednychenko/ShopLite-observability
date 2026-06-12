@@ -1,0 +1,5 @@
+-- Run once on first InfluxDB startup (docker-entrypoint-initdb.d).
+-- One database per tool so dashboards stay isolated.
+CREATE DATABASE jmeter;
+CREATE DATABASE k6;
+CREATE DATABASE custom;

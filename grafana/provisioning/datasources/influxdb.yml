@@ -1,0 +1,36 @@
+# InfluxDB 1.8 (InfluxQL) datasources, provisioned at Grafana startup.
+# The JMeter dashboard's `data_source` template variable defaults to the
+# fixed uid below, so it binds with zero clicks.
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    uid: shoplite-influxdb
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: true
+    database: jmeter
+    jsonData:
+      dbName: jmeter
+      httpMode: GET
+
+  - name: InfluxDB-k6
+    uid: shoplite-influxdb-k6
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: k6
+    jsonData:
+      dbName: k6
+      httpMode: GET
+
+  - name: InfluxDB-custom
+    uid: shoplite-influxdb-custom
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: custom
+    jsonData:
+      dbName: custom
+      httpMode: GET

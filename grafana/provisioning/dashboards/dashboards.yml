@@ -1,0 +1,13 @@
+# Load every *.json in /var/lib/grafana/dashboards into a "ShopLite" folder.
+apiVersion: 1
+
+providers:
+  - name: ShopLite
+    orgId: 1
+    folder: ShopLite
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
