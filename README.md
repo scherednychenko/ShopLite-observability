@@ -127,10 +127,11 @@ database and select **InfluxDB-custom** as the datasource.
 - [ ] Animated GIF of a live run
 - [ ] JMeter run-vs-run comparison dashboard (same `jmeter` measurement, two time windows)
 
-## One scenario, five tools — plus a shared dashboard
+## One scenario, six tools — plus a shared dashboard
 
-The same ShopLite journey (browse → add-to-cart → checkout) is implemented across five
-load-testing tools — each a one-command Dockerized demo — now with a shared live view here:
+The same ShopLite journey (browse → add-to-cart → checkout) is covered by six tools — five
+backend load-testing tools plus a frontend Core Web Vitals one — each a one-command
+Dockerized demo, with a shared live view here:
 
 | Tool | Language / DSL | SLOs as | Report | Repo |
 |---|---|---|---|---|
@@ -139,6 +140,7 @@ load-testing tools — each a one-command Dockerized demo — now with a shared 
 | Locust | Python | Code-level checks | Built-in HTML | [ShopLite-load-tests-locust](https://github.com/scherednychenko/ShopLite-load-tests-locust) |
 | Gatling | Scala DSL | Assertions | HTML charts | [ShopLite-load-tests-gatling-scala](https://github.com/scherednychenko/ShopLite-load-tests-gatling-scala) |
 | Gatling | Java DSL | Assertions | HTML charts | [ShopLite-load-tests-gatling-javaDSL](https://github.com/scherednychenko/ShopLite-load-tests-gatling-javaDSL) |
+| sitespeed.io | JavaScript | Budgets | HTML + Grafana | [ShopLite-ui-perf](https://github.com/scherednychenko/ShopLite-ui-perf) |
 | **Observability** | InfluxDB + Grafana | — | **Live dashboards** | **ShopLite-observability** (this repo) |
 
 ## License
