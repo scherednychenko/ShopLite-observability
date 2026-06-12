@@ -13,6 +13,9 @@ tools; this gives them a shared, real-time view.
 > the load model, reading the results, and turning them into a go/no-go call — judgment a
 > demo can't capture.
 
+> **Note.** This is a personal portfolio project — a from-scratch reconstruction
+> built entirely on public, open-source tools against a fictional storefront. It is
+> not affiliated with, and contains no material from, any employer or client.
 ## Contents
 - `docker-compose.yml` — InfluxDB 1.8 + Grafana, datasource & dashboards auto-provisioned
 - `dashboards/jmeter.json` — JMeter dashboard (NovatecConsulting #5496 lineage) with a
