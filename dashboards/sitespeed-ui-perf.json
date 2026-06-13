@@ -1,0 +1,1817 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "shoplite",
+    "sitespeed",
+    "core-web-vitals"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "category",
+        "label": "Category",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "shoplite-sitespeed"
+        },
+        "query": "SHOW TAG VALUES WITH KEY = \"category\"",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "regex": "",
+        "definition": "SHOW TAG VALUES WITH KEY = \"category\""
+      },
+      {
+        "name": "group",
+        "label": "Group",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "shoplite-sitespeed"
+        },
+        "query": "SHOW TAG VALUES WITH KEY = \"group\" WHERE \"category\" =~ /^$category$/",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "regex": "",
+        "definition": "SHOW TAG VALUES WITH KEY = \"group\" WHERE \"category\" =~ /^$category$/"
+      },
+      {
+        "name": "page",
+        "label": "Page",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "shoplite-sitespeed"
+        },
+        "query": "SHOW TAG VALUES WITH KEY = \"page\" WHERE \"group\" =~ /^$group$/",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "regex": "",
+        "definition": "SHOW TAG VALUES WITH KEY = \"page\" WHERE \"group\" =~ /^$group$/"
+      },
+      {
+        "name": "browser",
+        "label": "Browser",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "shoplite-sitespeed"
+        },
+        "query": "SHOW TAG VALUES WITH KEY = \"browser\"",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "regex": "",
+        "definition": "SHOW TAG VALUES WITH KEY = \"browser\""
+      },
+      {
+        "name": "connectivity",
+        "label": "Connectivity",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "shoplite-sitespeed"
+        },
+        "query": "SHOW TAG VALUES WITH KEY = \"connectivity\"",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "regex": "",
+        "definition": "SHOW TAG VALUES WITH KEY = \"connectivity\""
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "ShopLite \u2014 UI Performance (Core Web Vitals)",
+  "uid": "shoplite-ui-perf",
+  "version": 1,
+  "weekStart": "",
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Core Web Vitals \u2014 worst page vs Google thresholds",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "gauge",
+      "title": "Largest Contentful Paint",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 5000,
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"largestContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "gauge",
+      "title": "First Contentful Paint",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 4000,
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1800
+              },
+              {
+                "color": "red",
+                "value": 3000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"firstContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "gauge",
+      "title": "Cumulative Layout Shift",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "min": 0,
+          "max": 0.3,
+          "decimals": 3,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"cumulativeLayoutShift\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "gauge",
+      "title": "Speed Index",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 7000,
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3400
+              },
+              {
+                "color": "red",
+                "value": 5800
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"SpeedIndex\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "gauge",
+      "title": "Total Blocking Time",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 800,
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"totalBlockingTime\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "gauge",
+      "title": "First Input Delay",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 400,
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"firstInputDelay\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "Per-page summary",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "panels": []
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Per-page summary \u2014 mean over range (Google CWV thresholds)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LCP"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 2500
+                    },
+                    {
+                      "color": "red",
+                      "value": 4000
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FCP"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 1800
+                    },
+                    {
+                      "color": "red",
+                      "value": 3000
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CLS"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.25
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SpeedIndex"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 3400
+                    },
+                    {
+                      "color": "red",
+                      "value": 5800
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TBT"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 200
+                    },
+                    {
+                      "color": "red",
+                      "value": 600
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 100
+                    },
+                    {
+                      "color": "red",
+                      "value": 300
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "VC85"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fully Loaded"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Page Load"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TTFB"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 800
+                    },
+                    {
+                      "color": "red",
+                      "value": 1800
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "page"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Page"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "page": "Page"
+            },
+            "indexByName": {
+              "page": 0,
+              "LCP": 1,
+              "FCP": 2,
+              "CLS": 3,
+              "SpeedIndex": 4,
+              "TBT": 5,
+              "FID": 6,
+              "VC85": 7,
+              "Fully Loaded": 8,
+              "Page Load": 9,
+              "TTFB": 10
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") AS \"LCP\" FROM \"largestContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "B",
+          "query": "SELECT mean(\"mean\") AS \"FCP\" FROM \"firstContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "C",
+          "query": "SELECT mean(\"mean\") AS \"CLS\" FROM \"cumulativeLayoutShift\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "D",
+          "query": "SELECT mean(\"mean\") AS \"SpeedIndex\" FROM \"SpeedIndex\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "E",
+          "query": "SELECT mean(\"mean\") AS \"TBT\" FROM \"totalBlockingTime\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "F",
+          "query": "SELECT mean(\"mean\") AS \"FID\" FROM \"firstInputDelay\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "G",
+          "query": "SELECT mean(\"mean\") AS \"VC85\" FROM \"VisualComplete85\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "H",
+          "query": "SELECT mean(\"mean\") AS \"Fully Loaded\" FROM \"fullyLoaded\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "I",
+          "query": "SELECT mean(\"mean\") AS \"Page Load\" FROM \"pageLoadTime\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "J",
+          "query": "SELECT mean(\"mean\") AS \"TTFB\" FROM \"ttfb\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY \"page\"",
+          "rawQuery": true,
+          "resultFormat": "table"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "Core Web Vitals \u2014 trend by page",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Largest Contentful Paint (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"largestContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "First Contentful Paint (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"firstContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Speed Index (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"SpeedIndex\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Cumulative Layout Shift (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 3,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          },
+          "max": 0.1,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"cumulativeLayoutShift\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "row",
+      "title": "Page timing breakdown by page",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "panels": []
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Page Load Time (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"pageLoadTime\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Fully Loaded (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"fullyLoaded\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Time To First Byte (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"ttfb\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Total Blocking Time (mean)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "always",
+            "pointSize": 6,
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT mean(\"mean\") FROM \"totalBlockingTime\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter GROUP BY time($__interval), \"page\" fill(null)",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$tag_page"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "Run health & report",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "panels": []
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "Errors (range)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 53
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT count(\"mean\") FROM \"errors\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "Slowest page \u2014 LCP",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "shoplite-sitespeed"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 5,
+        "y": 53
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "shoplite-sitespeed"
+          },
+          "refId": "A",
+          "query": "SELECT max(\"mean\") FROM \"largestContentfulPaint\" WHERE (\"group\" =~ /^$group$/ AND \"page\" =~ /^$page$/ AND \"browser\" =~ /^$browser$/ AND \"connectivity\" =~ /^$connectivity$/ AND \"category\" =~ /^$category$/) AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 6,
+        "w": 14,
+        "x": 10,
+        "y": 53
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### \ud83d\udccb Full sitespeed.io report\nEach run also writes a complete **HTML report** to `results/` \u2014 per-page Core Web Vitals, **filmstrips**, waterfalls, CPU, and a coach score. Open the newest `results/<timestamp>/index.html`.\n\n**Google thresholds:** LCP \u22642.5s \u00b7 FCP \u22641.8s \u00b7 CLS \u22640.1 \u00b7 TBT \u2264200ms \u00b7 Speed Index \u22643.4s \u00b7 FID \u2264100ms (green = good)."
+      }
+    }
+  ]
+}

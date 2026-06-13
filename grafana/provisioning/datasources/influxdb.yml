@@ -34,3 +34,13 @@ datasources:
     jsonData:
       dbName: custom
       httpMode: GET
+
+  - name: InfluxDB-sitespeed
+    uid: shoplite-sitespeed
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: sitespeed
+    jsonData:
+      dbName: sitespeed
+      httpMode: GET

@@ -3,3 +3,7 @@
 CREATE DATABASE jmeter;
 CREATE DATABASE k6;
 CREATE DATABASE custom;
+-- sitespeed.io UI-performance (Core Web Vitals); fed via the Graphite listener
+-- on :2003 (see influxdb.conf). The Graphite input also auto-creates it, but we
+-- declare it here so the datasource is valid from the first second.
+CREATE DATABASE sitespeed;
