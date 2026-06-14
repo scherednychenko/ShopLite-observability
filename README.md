@@ -35,6 +35,7 @@ a shared, real-time view — four dashboards in one **ShopLite** folder.
   push (it speaks Graphite, not the HTTP API), with templates that map keys → measurements/tags
 - `mock/` — the same dependency-free mock backend used by the other repos
 - `tools/feed-*.sh` — one-command scripts to drive a tool into this stack and fill a dashboard live
+- `tools/locust_influx_listener.py` — extra locustfile that gives Locust an InfluxDB (OK/KO) output, used by `feed-locust.sh`
 
 ## Run in Docker (one command)
 ```bash
@@ -67,13 +68,19 @@ live. They assume the sibling repos are checked out next to this one (override w
 ./tools/feed-jmeter.sh    # JMeter  → db jmeter   → "ShopLite — JMeter Performance"   (datasource: InfluxDB)
 ./tools/feed-k6.sh        # k6      → db k6       → "ShopLite — k6 Performance"        (datasource: InfluxDB-k6)
 ./tools/feed-custom.sh    # OK/KO demo data → db custom → "ShopLite — Custom Listener" (datasource: InfluxDB-custom)
+./tools/feed-locust.sh    # Locust  → db custom (test ShopLiteLocust) → "ShopLite — Custom Listener" (datasource: InfluxDB-custom)
 ./tools/feed-sitespeed.sh # sitespeed.io → db sitespeed → "ShopLite — UI Performance"  (datasource: InfluxDB-sitespeed)
 ```
 
 Tunables, e.g.: `THREADS=25 DURATION=180 ./tools/feed-jmeter.sh`, `VUS=40 ./tools/feed-k6.sh`.
 `feed-jmeter.sh` enables the JMeter Backend Listener in a **temp copy** of the JMX (the
 published test plan is left untouched). `feed-custom.sh` generates representative OK/KO
-data — no off-the-shelf tool writes that exact schema.
+**demo** data — no off-the-shelf tool writes that exact schema. `feed-locust.sh` is the
+**real** producer for that board: Locust has no native InfluxDB output, so it loads a small
+extra locustfile (`tools/locust_influx_listener.py`) as a second `-f` that writes the OK/KO
+schema — the published locust repo stays untouched. Both land in db `custom`; pick the test
+(`ShopLiteSimulation` for the demo, `ShopLiteLocust` for the real run) in the dashboard's
+`Test` dropdown.
 
 > **Picking the datasource matters.** Each dashboard reads one database, so select the
 > matching datasource in the top-left dropdown (`InfluxDB` for JMeter, `InfluxDB-k6` for
@@ -118,6 +125,11 @@ A generic dashboard for any listener that writes per-sample points with field
 (plus a `users` measurement for active VUs). Template variables pick the simulation,
 environment, percentile and aggregation window. Point your listener at the `custom`
 database and select **InfluxDB-custom** as the datasource.
+
+**Locust feeds this board** (it has no native InfluxDB output): `./tools/feed-locust.sh`
+loads `tools/locust_influx_listener.py` as an extra locustfile that emits this exact schema
+under the test name `ShopLiteLocust`. So the same generic board serves both the synthetic
+demo and a real Locust run — pick the test in the `Test` dropdown.
 
 ![Custom OK/KO live dashboard](docs/img/custom_dashboard.png)
 
