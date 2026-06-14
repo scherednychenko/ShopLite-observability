@@ -36,6 +36,7 @@ a shared, real-time view — four dashboards in one **ShopLite** folder.
 - `mock/` — the same dependency-free mock backend used by the other repos
 - `tools/feed-*.sh` — one-command scripts to drive a tool into this stack and fill a dashboard live
 - `tools/locust_influx_listener.py` — extra locustfile that gives Locust an InfluxDB (OK/KO) output, used by `feed-locust.sh`
+- `tools/gatling_log_to_influx.py` — parses a Gatling `simulation.log` into the OK/KO schema, used by `feed-gatling-{scala,java}.sh`
 
 ## Run in Docker (one command)
 ```bash
@@ -67,20 +68,30 @@ live. They assume the sibling repos are checked out next to this one (override w
 ```bash
 ./tools/feed-jmeter.sh    # JMeter  → db jmeter   → "ShopLite — JMeter Performance"   (datasource: InfluxDB)
 ./tools/feed-k6.sh        # k6      → db k6       → "ShopLite — k6 Performance"        (datasource: InfluxDB-k6)
-./tools/feed-custom.sh    # OK/KO demo data → db custom → "ShopLite — Custom Listener" (datasource: InfluxDB-custom)
-./tools/feed-locust.sh    # Locust  → db custom (test ShopLiteLocust) → "ShopLite — Custom Listener" (datasource: InfluxDB-custom)
-./tools/feed-sitespeed.sh # sitespeed.io → db sitespeed → "ShopLite — UI Performance"  (datasource: InfluxDB-sitespeed)
+./tools/feed-custom.sh        # OK/KO demo data → db custom (test ShopLiteSimulation) → "ShopLite — Custom Listener"
+./tools/feed-locust.sh        # Locust  → db custom (test ShopLiteLocust)       → "ShopLite — Custom Listener"
+./tools/feed-gatling-scala.sh # Gatling (Scala) → db custom (test ShopLiteGatlingScala) → "ShopLite — Custom Listener"
+./tools/feed-gatling-java.sh  # Gatling (Java)  → db custom (test ShopLiteGatlingJava)  → "ShopLite — Custom Listener"
+./tools/feed-sitespeed.sh     # sitespeed.io → db sitespeed → "ShopLite — UI Performance" (datasource: InfluxDB-sitespeed)
 ```
+The OK/KO board (`InfluxDB-custom`) is the shared home for the "generic OK/KO" tools —
+Locust and both Gatling DSLs all land in db `custom`, told apart by the `Test` dropdown
+(`ShopLiteLocust` / `ShopLiteGatlingScala` / `ShopLiteGatlingJava`, plus the synthetic
+`ShopLiteSimulation`).
 
 Tunables, e.g.: `THREADS=25 DURATION=180 ./tools/feed-jmeter.sh`, `VUS=40 ./tools/feed-k6.sh`.
 `feed-jmeter.sh` enables the JMeter Backend Listener in a **temp copy** of the JMX (the
 published test plan is left untouched). `feed-custom.sh` generates representative OK/KO
-**demo** data — no off-the-shelf tool writes that exact schema. `feed-locust.sh` is the
-**real** producer for that board: Locust has no native InfluxDB output, so it loads a small
-extra locustfile (`tools/locust_influx_listener.py`) as a second `-f` that writes the OK/KO
-schema — the published locust repo stays untouched. Both land in db `custom`; pick the test
-(`ShopLiteSimulation` for the demo, `ShopLiteLocust` for the real run) in the dashboard's
-`Test` dropdown.
+**demo** data — no off-the-shelf tool writes that exact schema. The **real** producers for
+that board don't need their repos modified:
+- `feed-locust.sh` loads a small extra locustfile (`tools/locust_influx_listener.py`) as a
+  second `-f` that writes the OK/KO schema live during the run.
+- `feed-gatling-scala.sh` / `feed-gatling-java.sh` run Gatling, then parse its
+  `simulation.log` (`tools/gatling_log_to_influx.py`) into the same schema (Gatling has no
+  per-sample InfluxDB output).
+
+Tunables for these: `USERS=40 RUN_TIME=180s ./tools/feed-locust.sh`,
+`VUS=40 CART_SIZE=12 ./tools/feed-gatling-scala.sh`.
 
 > **Picking the datasource matters.** Each dashboard reads one database, so select the
 > matching datasource in the top-left dropdown (`InfluxDB` for JMeter, `InfluxDB-k6` for
@@ -126,10 +137,15 @@ A generic dashboard for any listener that writes per-sample points with field
 environment, percentile and aggregation window. Point your listener at the `custom`
 database and select **InfluxDB-custom** as the datasource.
 
-**Locust feeds this board** (it has no native InfluxDB output): `./tools/feed-locust.sh`
-loads `tools/locust_influx_listener.py` as an extra locustfile that emits this exact schema
-under the test name `ShopLiteLocust`. So the same generic board serves both the synthetic
-demo and a real Locust run — pick the test in the `Test` dropdown.
+**Locust and both Gatling DSLs feed this board** (none has a per-sample InfluxDB output):
+- `./tools/feed-locust.sh` loads `tools/locust_influx_listener.py` as an extra locustfile
+  that emits this schema live, under test `ShopLiteLocust`.
+- `./tools/feed-gatling-scala.sh` and `./tools/feed-gatling-java.sh` run Gatling, then parse
+  its `simulation.log` with `tools/gatling_log_to_influx.py`, under tests `ShopLiteGatlingScala`
+  / `ShopLiteGatlingJava`.
+
+So one generic board serves the synthetic demo and three real tools — pick the run in the
+`Test` dropdown. The published tool repos are never modified.
 
 ![Custom OK/KO live dashboard](docs/img/custom_dashboard.png)
 
