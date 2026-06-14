@@ -27,7 +27,7 @@ cd "$ROOT"
 echo "→ ensuring InfluxDB + Grafana are up…"
 docker compose up -d
 
-echo "→ building + starting the ShopLite storefront mock on $NET…"
+echo "→ building + starting the ShopLite storefront mock on ${NET}…"
 docker build -t shoplite-ui-perf-mock "$UIPERF_REPO/mock" >/dev/null
 docker rm -f shoplite-storefront-obs >/dev/null 2>&1 || true
 docker run -d --name shoplite-storefront-obs --network "$NET" --network-alias mock shoplite-ui-perf-mock >/dev/null
