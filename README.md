@@ -112,6 +112,9 @@ MOCK_FAIL_RATE=0.3 ./tools/demo-failures.sh
   can't run on Docker Desktop - no `ifb` kernel module - so we slow the server instead.)
   Tune with `SLOW=1 DELAY_MS=2500 ./tools/feed-sitespeed.sh`.
 
+A captured failure run — board screenshots plus a short written analysis (what broke, how
+it reads, what to fix) — lives in **[`reports/`](reports/SAMPLE_PERFORMANCE_REPORT.md)**.
+
 > **Picking the datasource matters.** Each dashboard reads one database, so select the
 > matching datasource in the top-left dropdown (`InfluxDB` for JMeter, `InfluxDB-k6` for
 > k6, `InfluxDB-custom` for the OK/KO board, `InfluxDB-sitespeed` for the Core Web Vitals
