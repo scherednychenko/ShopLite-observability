@@ -93,6 +93,25 @@ that board don't need their repos modified:
 Tunables for these: `USERS=40 RUN_TIME=180s ./tools/feed-locust.sh`,
 `VUS=40 CART_SIZE=12 ./tools/feed-gatling-scala.sh`.
 
+### Paint the boards red (failure demo)
+To show every board in an *unhealthy* state (for screenshots), `./tools/demo-failures.sh`
+drives all six tools into failure:
+
+```bash
+./tools/demo-failures.sh                 # ~12-20 min: all six tools, then leaves the stack up
+MOCK_FAIL_RATE=0.3 ./tools/demo-failures.sh
+```
+
+- **API tools** (JMeter, k6, Locust, Gatling x2) hit `tools/chaos_mock.py`, which fails
+  `MOCK_FAIL_RATE` (default 0.2) of requests with HTTP 500 -> real errors / KO -> red
+  error-rate gauges and KO panels. Each feeder also honours `MOCK_FAIL_RATE` on its own,
+  e.g. `MOCK_FAIL_RATE=0.2 ./tools/feed-k6.sh`.
+- **sitespeed** runs with `SLOW=1`, which serves the storefront through
+  `tools/slow_storefront.py` (a per-response delay) so Core Web Vitals blow past Google's
+  thresholds -> amber/red gauges and table cells. (sitespeed's own connectivity throttling
+  can't run on Docker Desktop - no `ifb` kernel module - so we slow the server instead.)
+  Tune with `SLOW=1 DELAY_MS=2500 ./tools/feed-sitespeed.sh`.
+
 > **Picking the datasource matters.** Each dashboard reads one database, so select the
 > matching datasource in the top-left dropdown (`InfluxDB` for JMeter, `InfluxDB-k6` for
 > k6, `InfluxDB-custom` for the OK/KO board, `InfluxDB-sitespeed` for the Core Web Vitals

@@ -27,12 +27,24 @@ cd "$ROOT"
 echo "→ ensuring InfluxDB + Grafana are up…"
 docker compose up -d
 
-echo "→ building + starting the ShopLite storefront mock on ${NET}…"
-docker build -t shoplite-ui-perf-mock "$UIPERF_REPO/mock" >/dev/null
 docker rm -f shoplite-storefront-obs >/dev/null 2>&1 || true
-docker run -d --name shoplite-storefront-obs --network "$NET" --network-alias mock shoplite-ui-perf-mock >/dev/null
+if [ "${SLOW:-0}" != "0" ]; then
+  # sitespeed's connectivity throttling can't run on Docker Desktop (no ifb
+  # kernel module; tsproxy doesn't attach), so we slow the STOREFRONT instead -
+  # a tiny Python server that delays every response (DELAY_MS) -> Core Web Vitals
+  # breach Google thresholds -> red gauges / table cells.
+  echo "-> starting the SLOW storefront on ${NET} (DELAY_MS=${DELAY_MS:-4000})..."
+  docker run -d --name shoplite-storefront-obs --network "$NET" --network-alias mock \
+    -e DELAY_MS="${DELAY_MS:-4000}" \
+    -v "$UIPERF_REPO/mock/html":/site:ro -v "$ROOT/tools/slow_storefront.py":/slow_storefront.py:ro \
+    -w /site python:3-alpine python /slow_storefront.py 80 >/dev/null
+else
+  echo "-> building + starting the ShopLite storefront mock on ${NET}..."
+  docker build -t shoplite-ui-perf-mock "$UIPERF_REPO/mock" >/dev/null
+  docker run -d --name shoplite-storefront-obs --network "$NET" --network-alias mock shoplite-ui-perf-mock >/dev/null
+fi
 
-echo "→ running sitespeed.io ($ITERATIONS iterations) → influxdb:2003 (db sitespeed)…"
+echo "-> running sitespeed.io ($ITERATIONS iterations) -> influxdb:2003 (db sitespeed)..."
 # config/shoplite.json already targets graphite host "influxdb" :2003 with the
 # namespace the influxdb.conf templates expect, so it works unchanged here.
 docker run --rm --network "$NET" --shm-size 2g --cap-add NET_ADMIN \

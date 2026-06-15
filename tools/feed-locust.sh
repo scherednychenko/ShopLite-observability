@@ -29,7 +29,14 @@ docker compose up -d
 echo "-> building + starting the ShopLite API mock on ${NET}..."
 docker build -t shoplite-mock "$LOCUST_REPO/mock" >/dev/null
 docker rm -f shoplite-mock-obs >/dev/null 2>&1 || true
-docker run -d --name shoplite-mock-obs --network "$NET" --network-alias mock shoplite-mock >/dev/null
+if [ "${MOCK_FAIL_RATE:-0}" != "0" ]; then
+  echo "   (chaos mock: failing ${MOCK_FAIL_RATE} of API requests)"
+  docker run -d --name shoplite-mock-obs --network "$NET" --network-alias mock \
+    -e FAIL_RATE="$MOCK_FAIL_RATE" -v "$ROOT/tools/chaos_mock.py":/chaos_mock.py:ro \
+    python:3-alpine python /chaos_mock.py 8080 >/dev/null
+else
+  docker run -d --name shoplite-mock-obs --network "$NET" --network-alias mock shoplite-mock >/dev/null
+fi
 
 echo "-> running Locust (${USERS} users, ${RUN_TIME}) -> influxdb db custom (test ${SIM})..."
 docker run --rm --network "$NET" \
