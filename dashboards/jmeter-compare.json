@@ -1,0 +1,2831 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Compare two JMeter runs picked by label (application tag) — no timestamp filtering.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Run A · $run_a",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Total requests",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_a' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "gauge",
+      "title": "Error rate",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          },
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"countError\") / sum(\"count\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_a' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "p95, ms",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\", 95) FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_a' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Avg, ms",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(\"avg\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_a' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "row",
+      "title": "Run B · $run_b",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "Total requests",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_b' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "gauge",
+      "title": "Error rate",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          },
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"countError\") / sum(\"count\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_b' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "p95, ms",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\", 95) FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_b' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "stat",
+      "title": "Avg, ms",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "0"
+                }
+              }
+            }
+          ],
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(\"avg\") FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_b' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "type": "table",
+      "title": "Overall — Run B vs Run A",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^p95 /"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^rps /"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "reqps"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^Err% /"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 Δ%"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Err Δ"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.005
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.02
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Throughput Δ%"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\",95) as \"p95 A\", sum(\"count\") as \"# A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_a' AND $timeFilter GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"countError\") as \"errc A\", sum(\"count\") as \"cnt A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_a' AND $timeFilter GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\",95) as \"p95 B\", sum(\"count\") as \"# B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_b' AND $timeFilter GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"countError\") as \"errc B\", sum(\"count\") as \"cnt B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\"='all' AND \"application\"='$run_b' AND $timeFilter GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(\"r\") as \"rps A\" FROM (SELECT sum(\"count\")/$send_interval AS r FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_a' AND $timeFilter GROUP BY time(${send_interval}s)) GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(\"r\") as \"rps B\" FROM (SELECT sum(\"count\")/$send_interval AS r FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_b' AND $timeFilter GROUP BY time(${send_interval}s)) GROUP BY time(1000d)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err% A",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "errc A"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cnt A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err% B",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "errc B"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cnt B"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err Δ",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Err% B"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Err% A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95d",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 B"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95r",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95d"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95 Δ%",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95r"
+                }
+              },
+              "operator": "*",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "rpsd",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rps B"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rps A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "rpsr",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rpsd"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rps A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Throughput Δ%",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rpsr"
+                }
+              },
+              "operator": "*",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "# A": true,
+              "# B": true,
+              "errc A": true,
+              "cnt A": true,
+              "errc B": true,
+              "cnt B": true,
+              "p95d": true,
+              "p95r": true,
+              "rpsd": true,
+              "rpsr": true
+            },
+            "indexByName": {
+              "p95 A": 0,
+              "p95 B": 1,
+              "p95 Δ%": 2,
+              "Err% A": 3,
+              "Err% B": 4,
+              "rps A": 6,
+              "rps B": 7,
+              "Throughput Δ%": 8,
+              "Err Δ": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "type": "table",
+      "title": "Transactions — Run A vs Run B",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 320
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^(Avg|p95) /"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^Err% /"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.01
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.05
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 Δ%"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green"
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 5
+                    },
+                    {
+                      "color": "red",
+                      "value": 10
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "p95 Δ%",
+            "desc": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"# A\", mean(avg) as \"Avg A\", percentile(\"pct95.0\", 95) as \"p95 A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"OK A\" FROM \"$measurement_name\" WHERE \"statut\"='ok' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"# B\", mean(avg) as \"Avg B\", percentile(\"pct95.0\", 95) as \"p95 B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"OK B\" FROM \"$measurement_name\" WHERE \"statut\"='ok' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "transaction",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err A",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# A"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "OK A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err% A",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Err A"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err B",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# B"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "OK B"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Err% B",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Err B"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "# B"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95 diff",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 B"
+                }
+              },
+              "operator": "-",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95 ratio",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 diff"
+                }
+              },
+              "operator": "/",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 A"
+                }
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "p95 Δ%",
+            "mode": "binary",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 ratio"
+                }
+              },
+              "operator": "*",
+              "reduce": {
+                "reducer": "sum"
+              },
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "OK A": true,
+              "OK B": true,
+              "Err A": true,
+              "Err B": true,
+              "p95 diff": true,
+              "p95 ratio": true,
+              "Time": true,
+              "Time A": true,
+              "Time B": true
+            },
+            "indexByName": {
+              "transaction": 0,
+              "# A": 1,
+              "# B": 2,
+              "Avg A": 3,
+              "Avg B": 4,
+              "p95 A": 5,
+              "p95 B": 6,
+              "p95 Δ%": 7,
+              "Err% A": 8,
+              "Err% B": 9
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "Trends over run — A vs B  (overlaid; aligns best for back-to-back runs)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "panels": []
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "p95 response time over run",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 · A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 · B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "p95 · A",
+          "query": "SELECT percentile(\"pct95.0\",95) FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_a' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "p95 · B",
+          "query": "SELECT percentile(\"pct95.0\",95) FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_b' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "Throughput over run  (passed solid · failed dashed)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Passed · A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Passed · B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed · A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    8,
+                    8
+                  ]
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed · B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    8,
+                    8
+                  ]
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Passed · A",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ok' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_a' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Passed · B",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ok' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_b' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Failed · A",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_a' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Failed · B",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_b' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Errors over run  (failed req/s)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors · A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors · B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0533D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Errors · A",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_a' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Errors · B",
+          "query": "SELECT sum(\"count\") / $send_interval FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"transaction\" =~ /^TX_/  AND \"application\"='$run_b' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "row",
+      "title": "Latency profile & load",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "panels": []
+    },
+    {
+      "id": 43,
+      "type": "bargauge",
+      "title": "Latency profile (p50–p99) — A vs B",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#3B7DDD"
+          },
+          "unit": "ms",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#3B7DDD"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/ B$/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct50.0\",50) as \"p50 A\", percentile(\"pct90.0\",90) as \"p90 A\", percentile(\"pct95.0\",95) as \"p95 A\", percentile(\"pct99.0\",99) as \"p99 A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_a' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct50.0\",50) as \"p50 B\", percentile(\"pct90.0\",90) as \"p90 B\", percentile(\"pct95.0\",95) as \"p95 B\", percentile(\"pct99.0\",99) as \"p99 B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"transaction\" =~ /^TX_/ AND \"application\"='$run_b' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": []
+    },
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Active threads over run",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "none",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Threads · A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Threads · B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Threads · A",
+          "query": "SELECT max(\"maxAT\") FROM \"$measurement_name\" WHERE \"transaction\"='internal' AND \"application\"='$run_a' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "alias": "Threads · B",
+          "query": "SELECT max(\"maxAT\") FROM \"$measurement_name\" WHERE \"transaction\"='internal' AND \"application\"='$run_b' AND $timeFilter GROUP BY time($__interval)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "row",
+      "title": "By transaction — A vs B  (always aligned)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "panels": []
+    },
+    {
+      "id": 50,
+      "type": "barchart",
+      "title": "p95 by transaction (ms)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 41
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95 B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "xField": "transaction",
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\",95) as \"p95 A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct95.0\",95) as \"p95 B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "transaction",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "transaction": 0,
+              "p95 A": 1,
+              "p95 B": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "type": "barchart",
+      "title": "Avg by transaction (ms)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 41
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "xField": "transaction",
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(avg) as \"Avg A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT mean(avg) as \"Avg B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "transaction",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "transaction": 0,
+              "Avg A": 1,
+              "Avg B": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "type": "barchart",
+      "title": "p99 by transaction (ms)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 41
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99 A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99 B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0752D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "xField": "transaction",
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct99.0\",99) as \"p99 A\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT percentile(\"pct99.0\",99) as \"p99 B\" FROM \"$measurement_name\" WHERE \"statut\"='all' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "transaction",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "transaction": 0,
+              "p99 A": 1,
+              "p99 B": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "type": "barchart",
+      "title": "Errors by transaction (count)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$data_source"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "none",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3B7DDD"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Errors B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E0533D"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "xField": "transaction",
+        "showValue": "auto",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"Errors A\" FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"application\"='$run_a' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$data_source"
+          },
+          "query": "SELECT sum(\"count\") as \"Errors B\" FROM \"$measurement_name\" WHERE \"statut\"='ko' AND \"application\"='$run_b' AND \"transaction\" =~ /^TX_/ AND $timeFilter GROUP BY \"transaction\"",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "transaction",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "transaction": 0,
+              "Errors A": 1,
+              "Errors B": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    }
+  ],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [
+    "shoplite",
+    "jmeter",
+    "comparison"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "data_source",
+        "type": "datasource",
+        "query": "influxdb",
+        "refresh": 1,
+        "current": {
+          "text": "InfluxDB",
+          "value": "shoplite-influxdb"
+        },
+        "regex": "",
+        "includeAll": false
+      },
+      {
+        "name": "measurement_name",
+        "type": "constant",
+        "query": "ShopLite_Perf",
+        "current": {
+          "text": "ShopLite_Perf",
+          "value": "ShopLite_Perf"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "send_interval",
+        "type": "constant",
+        "query": "5",
+        "current": {
+          "text": "5",
+          "value": "5"
+        },
+        "hide": 2,
+        "skipUrlSync": true
+      },
+      {
+        "name": "run_a",
+        "type": "query",
+        "label": "Run A (baseline)",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "$data_source"
+        },
+        "refresh": 1,
+        "includeAll": false,
+        "regex": "",
+        "current": {
+          "text": "baseline",
+          "value": "baseline"
+        },
+        "query": {
+          "query": "SHOW TAG VALUES FROM \"$measurement_name\" WITH KEY = \"application\"",
+          "refId": "InfluxVariableQueryEditor-VariableQuery"
+        }
+      },
+      {
+        "name": "run_b",
+        "type": "query",
+        "label": "Run B",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "$data_source"
+        },
+        "refresh": 1,
+        "includeAll": false,
+        "regex": "",
+        "current": {
+          "text": "after-fix",
+          "value": "after-fix"
+        },
+        "query": {
+          "query": "SHOW TAG VALUES FROM \"$measurement_name\" WITH KEY = \"application\"",
+          "refId": "InfluxVariableQueryEditor-VariableQuery"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ShopLite — JMeter Run Comparison",
+  "uid": "shoplite-jmeter-compare",
+  "version": 1
+}

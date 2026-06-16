@@ -16,6 +16,10 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 JMETER_REPO="${JMETER_REPO:-$ROOT/../ShopLite-load-tests}"
 NET="${NET:-shoplite-observability_default}"
 THREADS="${THREADS:-15}"; DURATION="${DURATION:-80}"; CART_SIZE="${CART_SIZE:-4}"
+# Run label → written as the `application` tag, so the comparison dashboard can pick
+# runs from a dropdown. Default keeps the main dashboard working; label runs to compare:
+#   RUN_LABEL=baseline ./tools/feed-jmeter.sh   then   RUN_LABEL=after-fix ./tools/feed-jmeter.sh
+RUN_LABEL="${RUN_LABEL:-ShopLite_Perf}"
 
 cd "$ROOT"
 
@@ -38,18 +42,21 @@ else
   docker run -d --name shoplite-mock-obs --network "$NET" --network-alias mock shoplite-mock >/dev/null
 fi
 
-echo "→ enabling the Backend Listener (in a temp copy; published JMX untouched)…"
+echo "→ enabling the Backend Listener + labelling the run '$RUN_LABEL' (temp copy; published JMX untouched)…"
 JMX="$(mktemp -t shoplite_jmx.XXXXXX).jmx"
-python3 - "$JMETER_REPO/jmeter/test-plans/ShopLite_Scenarios.jmx" "$JMX" <<'PY'
-import sys
-src,dst=sys.argv[1],sys.argv[2]; t=open(src,encoding='utf-8').read()
+python3 - "$JMETER_REPO/jmeter/test-plans/ShopLite_Scenarios.jmx" "$JMX" "$RUN_LABEL" <<'PY'
+import sys, re
+src,dst,label=sys.argv[1],sys.argv[2],sys.argv[3]; t=open(src,encoding='utf-8').read()
 n='<BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="Backend Listener" enabled="false">'
 t=t.replace(n,n.replace('enabled="false"','enabled="true"'),1)
 t=t.replace('http://localhost:8086/write?db=jmeter','http://influxdb:8086/write?db=jmeter')
+# stamp the run label into the `application` tag value only (not measurement/testTitle)
+t=re.sub(r'(name="Argument\.name">application</stringProp>\s*<stringProp name="Argument\.value">)[^<]*(</stringProp>)',
+         lambda m: m.group(1)+label+m.group(2), t, count=1)
 open(dst,'w',encoding='utf-8').write(t)
 PY
 
-echo "→ running JMeter ($THREADS threads, ${DURATION}s) → influxdb:8086/jmeter…"
+echo "→ running JMeter ($THREADS threads, ${DURATION}s) → influxdb:8086/jmeter (application=$RUN_LABEL)…"
 docker run --rm --network "$NET" -v "$JMX":/test/jmeter/test-plans/ShopLite_Scenarios.jmx:ro \
   shoplite-jmeter \
   -n -t jmeter/test-plans/ShopLite_Scenarios.jmx -q jmeter/config/load_sanity.properties \
@@ -60,5 +67,6 @@ docker run --rm --network "$NET" -v "$JMX":/test/jmeter/test-plans/ShopLite_Scen
 rm -f "$JMX"
 
 echo
-echo "✓ Done. Open http://localhost:3000 → ShopLite → 'ShopLite — JMeter Performance'"
-echo "  datasource: InfluxDB   measurement: ShopLite_Perf   (time range: Last 15 minutes)"
+echo "✓ Done (run '$RUN_LABEL'). Open http://localhost:3000 → ShopLite:"
+echo "  • 'ShopLite — JMeter Performance'  (single run; datasource InfluxDB, application=$RUN_LABEL)"
+echo "  • 'ShopLite — JMeter Run Comparison'  (pick Run A / Run B from the dropdowns)"

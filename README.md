@@ -22,6 +22,9 @@ a shared, real-time view — four dashboards in one **ShopLite** folder.
 - `docker-compose.yml` — InfluxDB 1.8 + Grafana, datasource & dashboards auto-provisioned
 - `dashboards/jmeter.json` — JMeter dashboard (NovatecConsulting #5496 lineage) with a
   per-transaction drill-down row; measurement `jmeter`, tags `application` / `transaction`
+- `dashboards/jmeter-compare.json` — **run-vs-run comparison**: pick **Run A** and **Run B**
+  from dropdowns (runs are told apart by the `application` tag, set per run via `RUN_LABEL`)
+  and read the Overall Δ summary + per-transaction Δ table + overlaid trend charts
 - `dashboards/k6.json` — k6 dashboard (Grafana #2587 lineage): VUs, RPS, errors, checks,
   per-metric percentiles; native k6 InfluxDB output
 - `dashboards/custom.json` — generic OK/KO listener dashboard: field `response_time`,
@@ -80,6 +83,15 @@ Locust and both Gatling DSLs all land in db `custom`, told apart by the `Test` d
 `ShopLiteSimulation`).
 
 Tunables, e.g.: `THREADS=25 DURATION=180 ./tools/feed-jmeter.sh`, `VUS=40 ./tools/feed-k6.sh`.
+
+To compare two JMeter runs, **label each run** with `RUN_LABEL` (written as the `application`
+tag) and then pick them on the comparison board:
+```bash
+RUN_LABEL=baseline  ./tools/feed-jmeter.sh                         # run 1
+RUN_LABEL=after-fix THREADS=30 ./tools/feed-jmeter.sh              # run 2 (e.g. heavier load)
+# → open "ShopLite — JMeter Run Comparison", set Run A = baseline, Run B = after-fix
+```
+Without `RUN_LABEL` the run is tagged `ShopLite_Perf` (the default the single-run board reads).
 `feed-jmeter.sh` enables the JMeter Backend Listener in a **temp copy** of the JMX (the
 published test plan is left untouched). `feed-custom.sh` generates representative OK/KO
 **demo** data — no off-the-shelf tool writes that exact schema. The **real** producers for
@@ -145,6 +157,36 @@ selected from the template dropdown.
 
 ![JMeter live dashboard](docs/img/jmeter_dashboard.png)
 
+### JMeter — run-vs-run comparison
+Compares **two runs side by side** without fiddling with time windows. Each run is
+identified by its `application` tag (set with `RUN_LABEL` when feeding), so you just pick
+**Run A** (the baseline) and **Run B** from the two dropdowns — no timestamp math, which was
+the pain point of the old time-window comparison boards.
+
+The board has three blocks: a **stat header** per run (total requests, error-rate gauge,
+p95, avg), an **Overall — Run B vs Run A** one-liner with the headline deltas, a
+**per-transaction Δ table** (sorted by p95 Δ%, threshold-coloured), and **overlaid trend
+charts** (p95 / throughput / errors over the run, plus active threads & latency profile).
+
+**How the deltas are computed** (so the numbers reconcile with the single-run board):
+
+| Metric | Formula | Type |
+|---|---|---|
+| **p95 Δ%** | `(p95 B − p95 A) / p95 A × 100` | relative % change |
+| **Throughput Δ%** | `(rps B − rps A) / rps A × 100` | relative % change |
+| **Err Δ** | `Err% B − Err% A` | absolute difference (percentage points) |
+
+- **Error rate** uses `sum(countError) / sum(count)` on the `transaction='all'` rollup — the
+  same formula as the single-run error gauge, so a run's Err% matches on both boards.
+- **p95 / avg / throughput** are computed over the real journey transactions only
+  (`transaction =~ /^TX_/`), so setup steps like `Init - Log Run Context` don't skew latency.
+- p95 and throughput are shown as **relative change** (normalised to A); error rate is already
+  a percentage, so its delta is an **absolute** percentage-point difference.
+- Δ values are calculated at full precision; the A/B cells are rounded to whole units, so a
+  rounded `15 → 19 ms` can still read as `29%` (it's `19.35 / 15`, not `19 / 15`).
+
+![JMeter run comparison dashboard](docs/img/jmeter_compare.png)
+
 ### k6 — native InfluxDB output
 `k6 run --out influxdb` writes measurements `http_req_duration`, `http_reqs`, `vus`,
 `checks`, `errors`. The dashboard shows virtual users, requests/s, errors/s, checks/s and
@@ -194,7 +236,7 @@ Full tool + pipeline: [ShopLite-ui-perf](https://github.com/scherednychenko/Shop
 ## Roadmap
 - [x] Live screenshots of all three dashboards (`docs/img/`)
 - [ ] Animated GIF of a live run
-- [ ] JMeter run-vs-run comparison dashboard (same `jmeter` measurement, two time windows)
+- [x] JMeter run-vs-run comparison dashboard (runs picked by `application` tag, no time-window math)
 
 ## One scenario, six tools — plus a shared dashboard
 
