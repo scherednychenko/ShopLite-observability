@@ -220,6 +220,11 @@ The script also ships **Web Vitals `thresholds`** (SLOs as code) — the run exi
 CWV busts Google's "good" p75 (e.g. `browser_web_vital_lcp: ['p(75)<2500']`), so the same script
 doubles as a **CI gate** locally and in k6 Cloud. The SLOW run above trips them red.
 
+> ▶ **Same approach, in k6 Cloud.** The portable version of this browser/CWV test lives in the
+> k6 repo and runs unchanged on Grafana Cloud k6 — see a real cloud run (all six Web Vitals Good,
+> 5/5 thresholds passed, Cloud Insights) with screenshots:
+> [ShopLite-load-tests-k6 → Browser test (lab + k6 Cloud)](https://github.com/scherednychenko/ShopLite-load-tests-k6#browser-test--core-web-vitals-lab--k6-cloud).
+
 ![k6 browser Core Web Vitals dashboard](docs/img/k6_cwv_dashboard.png)
 
 Two caveats worth understanding (they're the whole point of practising this):
