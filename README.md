@@ -298,6 +298,24 @@ mix**, just like RUM in production.
 - So a mature frontend-perf practice runs **both**: lab (this repo's k6 browser / sitespeed) to gate
   regressions in CI, and field/RUM (Faro/CrUX) to see what real users experience.
 
+### Frontend performance — lab vs field vs cloud
+The same Core Web Vitals, measured three complementary ways across this series:
+
+| Surface | How it's measured | In this series | Answers |
+|---|---|---|---|
+| **Lab / synthetic** | controlled runs in a real browser | k6 browser & sitespeed.io boards (above) | "did this change regress CWV?" — cheap CI gates |
+| **Field / RUM** | real user sessions report from the browser | Grafana Faro board (above) | "what do real users actually experience?" — incl. **INP** |
+| **Cloud** | synthetic, at scale on Grafana's load zones | [k6 Cloud run][k6cloud] of the same `browser-cwv.js` | distributed zones + the results UI a client's team shares |
+
+Lab catches regressions cheaply in CI; field/RUM is the only place INP really lives; cloud runs the
+*same* lab script on Grafana's infra with a shareable UI. A mature setup uses all three. The boards
+here live in **[ShopLite-observability]** (this repo); the portable browser/CWV script and its cloud
+run live in **[ShopLite-load-tests-k6]**.
+
+[k6cloud]: https://github.com/scherednychenko/ShopLite-load-tests-k6#browser-test--core-web-vitals-lab--k6-cloud
+[ShopLite-observability]: https://github.com/scherednychenko/ShopLite-observability
+[ShopLite-load-tests-k6]: https://github.com/scherednychenko/ShopLite-load-tests-k6
+
 ## Notes
 - **InfluxDB 1.8 (InfluxQL)** on purpose: JMeter's Backend Listener and k6 both write to it
   natively, and every dashboard here is InfluxQL.
