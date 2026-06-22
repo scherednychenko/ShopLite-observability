@@ -216,6 +216,10 @@ percentile against Google's thresholds, with a per-page table and per-run trends
 SLOW=1 DELAY_MS=2200 ./tools/feed-k6-browser.sh  # slow storefront → amber/red (shown below)
 ```
 
+The script also ships **Web Vitals `thresholds`** (SLOs as code) — the run exits non-zero if a
+CWV busts Google's "good" p75 (e.g. `browser_web_vital_lcp: ['p(75)<2500']`), so the same script
+doubles as a **CI gate** locally and in k6 Cloud. The SLOW run above trips them red.
+
 ![k6 browser Core Web Vitals dashboard](docs/img/k6_cwv_dashboard.png)
 
 Two caveats worth understanding (they're the whole point of practising this):

@@ -27,6 +27,17 @@ export const options = {
       options: { browser: { type: 'chromium' } },
     },
   },
+  // SLOs as code: the run FAILS (exit 1) if a Core Web Vital busts Google's
+  // "good" p75 threshold — this is the perf equivalent of an assertion, so the
+  // same script doubles as a CI gate (locally and in k6 Cloud). Try
+  // `SLOW=1 DELAY_MS=2200 ./tools/feed-k6-browser.sh` to watch them go red.
+  thresholds: {
+    'browser_web_vital_lcp': ['p(75)<2500'],  // Largest Contentful Paint
+    'browser_web_vital_inp': ['p(75)<200'],   // Interaction to Next Paint (lab rarely has data → no-op)
+    'browser_web_vital_cls': ['p(75)<0.1'],   // Cumulative Layout Shift
+    'browser_web_vital_fcp': ['p(75)<1800'],  // First Contentful Paint
+    'browser_web_vital_ttfb': ['p(75)<800'],  // Time To First Byte
+  },
 };
 
 // Measure ONE page in its OWN browser context. k6 finalises a page's Web Vitals
