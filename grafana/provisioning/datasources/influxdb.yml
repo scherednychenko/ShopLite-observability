@@ -44,3 +44,13 @@ datasources:
     jsonData:
       dbName: sitespeed
       httpMode: GET
+
+  - name: InfluxDB-faro
+    uid: shoplite-faro
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: faro
+    jsonData:
+      dbName: faro
+      httpMode: GET

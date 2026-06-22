@@ -27,13 +27,19 @@ a shared, real-time view — four dashboards in one **ShopLite** folder.
   and read the Overall Δ summary + per-transaction Δ table + overlaid trend charts
 - `dashboards/k6.json` — k6 dashboard (Grafana #2587 lineage): VUs, RPS, errors, checks,
   per-metric percentiles; native k6 InfluxDB output
+- `dashboards/k6-browser-cwv.json` — **k6 browser Core Web Vitals**: LCP / INP / CLS / FCP /
+  TTFB gauges scored at p75 against Google thresholds, a per-page table, and trend charts;
+  fed by the `k6/browser` module (real Chromium), measurements `browser_web_vital_*`
 - `dashboards/custom.json` — generic OK/KO listener dashboard: field `response_time`,
   tags `status` (OK/KO) / `simulation` / `env`; for any tool whose listener writes this schema
 - `dashboards/sitespeed-ui-perf.json` — sitespeed.io **Core Web Vitals** dashboard: gauges
   scored against Google thresholds + a per-page summary table; one measurement per metric
   (`largestContentfulPaint`, `cumulativeLayoutShift`, …), tags `page` / `browser` / `connectivity`
+- `dashboards/faro-rum-cwv.json` — **Frontend RUM (Grafana Faro)**: the *field* Core Web Vitals
+  board (real user sessions, INP included) — LCP/INP/CLS/FCP/TTFB p75 + per-page / per-browser /
+  rating breakdowns; fed by `tools/faro_collector.py`, measurements `faro_web_vital_*`
 - `grafana/provisioning/` — datasources + dashboard provider (zero-click on startup)
-- `influxdb/init.iql` — creates the `jmeter` / `k6` / `custom` / `sitespeed` databases on first boot
+- `influxdb/init.iql` — creates the `jmeter` / `k6` / `custom` / `sitespeed` / `faro` databases on first boot
 - `influxdb/influxdb.conf` — enables InfluxDB's Graphite listener (`:2003`) so sitespeed.io can
   push (it speaks Graphite, not the HTTP API), with templates that map keys → measurements/tags
 - `mock/` — the same dependency-free mock backend used by the other repos
@@ -71,11 +77,13 @@ live. They assume the sibling repos are checked out next to this one (override w
 ```bash
 ./tools/feed-jmeter.sh    # JMeter  → db jmeter   → "ShopLite — JMeter Performance"   (datasource: InfluxDB)
 ./tools/feed-k6.sh        # k6      → db k6       → "ShopLite — k6 Performance"        (datasource: InfluxDB-k6)
+./tools/feed-k6-browser.sh # k6 browser → db k6  → "ShopLite — k6 Browser (Core Web Vitals)" (datasource: InfluxDB-k6)
 ./tools/feed-custom.sh        # OK/KO demo data → db custom (test ShopLiteSimulation) → "ShopLite — Custom Listener"
 ./tools/feed-locust.sh        # Locust  → db custom (test ShopLiteLocust)       → "ShopLite — Custom Listener"
 ./tools/feed-gatling-scala.sh # Gatling (Scala) → db custom (test ShopLiteGatlingScala) → "ShopLite — Custom Listener"
 ./tools/feed-gatling-java.sh  # Gatling (Java)  → db custom (test ShopLiteGatlingJava)  → "ShopLite — Custom Listener"
 ./tools/feed-sitespeed.sh     # sitespeed.io → db sitespeed → "ShopLite — UI Performance" (datasource: InfluxDB-sitespeed)
+./tools/feed-faro.sh          # Grafana Faro RUM (server) → db faro → "ShopLite — Frontend RUM (Faro)" (datasource: InfluxDB-faro)
 ```
 The OK/KO board (`InfluxDB-custom`) is the shared home for the "generic OK/KO" tools —
 Locust and both Gatling DSLs all land in db `custom`, told apart by the `Test` dropdown
@@ -129,8 +137,8 @@ it reads, what to fix) — lives in **[`reports/`](reports/SAMPLE_PERFORMANCE_RE
 
 > **Picking the datasource matters.** Each dashboard reads one database, so select the
 > matching datasource in the top-left dropdown (`InfluxDB` for JMeter, `InfluxDB-k6` for
-> k6, `InfluxDB-custom` for the OK/KO board, `InfluxDB-sitespeed` for the Core Web Vitals
-> board) — otherwise the panels show zeros.
+> k6, `InfluxDB-custom` for the OK/KO board, `InfluxDB-sitespeed` for the sitespeed Core Web
+> Vitals board, `InfluxDB-faro` for the Frontend RUM board) — otherwise the panels show zeros.
 
 ## Stack lifecycle
 
@@ -194,6 +202,37 @@ per-metric percentile breakdowns.
 
 ![k6 live dashboard](docs/img/k6_dashboard.png)
 
+### k6 browser — Core Web Vitals (lab/synthetic)
+The protocol-level k6 board above measures the API; this one measures the **rendered
+frontend**. `./tools/feed-k6-browser.sh` runs the ShopLite journey through a real Chromium via
+the [`k6/browser`](https://grafana.com/docs/k6/latest/using-k6-browser/) module, which
+auto-collects Web Vitals and streams them to InfluxDB as `browser_web_vital_*`
+(`lcp`/`inp`/`cls`/`fcp`/`ttfb`, field `value`, tags `name`=page-URL and `rating`). The board
+scores **LCP / INP / CLS** (the three Core Web Vitals) plus **FCP / TTFB** at the 75th
+percentile against Google's thresholds, with a per-page table and per-run trends.
+
+```bash
+./tools/feed-k6-browser.sh                       # fast storefront → green
+SLOW=1 DELAY_MS=2200 ./tools/feed-k6-browser.sh  # slow storefront → amber/red (shown below)
+```
+
+![k6 browser Core Web Vitals dashboard](docs/img/k6_cwv_dashboard.png)
+
+Two caveats worth understanding (they're the whole point of practising this):
+- **INP shows no data here, by design.** INP needs *real* user interactions to produce
+  Event-Timing entries; synthetic clicks usually don't. INP is really a **field/RUM** metric —
+  in production it comes from a browser SDK like **Grafana Faro** or Google **CrUX**, not a lab tool.
+- This is **lab/synthetic** data on a mock storefront — repeatable and good for catching
+  regressions in CI, but it's not what real users experience. Lab (k6 browser, sitespeed.io,
+  Lighthouse) and field (Faro/CrUX RUM) answer different questions; a mature setup uses both.
+
+> **Run it in k6 Cloud (Grafana Cloud k6).** The same script runs unchanged in the cloud,
+> where Web Vitals get a built-in results view — no dashboard to build. On a **free** Grafana
+> Cloud account: `k6 cloud login --token <STACK_TOKEN>`, then point it at a **publicly
+> reachable** URL (the cloud can't see your local mock) and run
+> `BASE_URL=https://your-site.example.com k6 cloud run tools/k6-browser-cwv.js`. Cloud runs the
+> browser remotely, so you don't even need Chromium locally.
+
 ### Custom listener — OK/KO schema
 A generic dashboard for any listener that writes per-sample points with field
 `response_time` and tags `status` (`OK`/`KO`), `simulation`, `env`, `sampler_type`
@@ -214,7 +253,7 @@ So one generic board serves the synthetic demo and three real tools — pick the
 ![Custom OK/KO live dashboard](docs/img/custom_dashboard.png)
 
 ### sitespeed.io — Core Web Vitals (frontend)
-The one frontend board in the set. sitespeed.io drives a real browser over the storefront
+A frontend (lab) board. sitespeed.io drives a real browser over the storefront
 and pushes via **Graphite** (`influxdb:2003`); the `influxdb.conf` templates turn each metric
 into its own measurement (`largestContentfulPaint`, `cumulativeLayoutShift`, `SpeedIndex`, …).
 The dashboard makes CWV the hero: gauges scored against Google thresholds plus a per-page
@@ -222,6 +261,33 @@ summary table with threshold-coloured cells. Select **InfluxDB-sitespeed** as th
 Full tool + pipeline: [ShopLite-ui-perf](https://github.com/scherednychenko/ShopLite-ui-perf).
 
 ![sitespeed.io Core Web Vitals dashboard](docs/img/sitespeed_dashboard.png)
+
+### Frontend RUM — Grafana Faro (field Core Web Vitals)
+The three boards above (k6 browser, sitespeed.io) are **lab/synthetic** — repeatable runs in a
+controlled browser, great for CI. This one is the **field** counterpart: Core Web Vitals from
+**real user sessions**, the way a production app actually reports them. `./tools/feed-faro.sh`
+serves a ShopLite page instrumented with the real **[Grafana Faro Web SDK](https://github.com/grafana/faro-web-sdk)**
+plus a tiny collector (`tools/faro_collector.py`) that receives the SDK's beacons and writes the
+Web Vitals to InfluxDB (`faro_web_vital_*`, tags `page`/`browser`/`session`/`rating`). Open the
+page, click around, and the board fills in — **per page, per browser, with a good/needs-improvement/poor
+mix**, just like RUM in production.
+
+```bash
+./tools/feed-faro.sh          # starts the page + collector on :8088 (a server; ./tools/feed-faro.sh stop to end)
+# → open http://localhost:8088/ in a real browser and click 'Add to cart' / navigate
+```
+
+![Frontend RUM (Grafana Faro) dashboard](docs/img/faro_rum_dashboard.png)
+
+**Why this matters — lab vs field, made concrete:**
+- **INP only shows up here.** Interaction-to-Next-Paint needs *real* clicks (Event-Timing entries);
+  synthetic drivers (k6 browser, headless Chrome) don't produce them, so the lab boards leave INP
+  empty. RUM captures it because a human is actually interacting. The same is true for real CLS.
+- **In production the collector is bigger.** Here it's a 100-line Python receiver → InfluxDB; a real
+  setup uses **Grafana Alloy** (`faro.receiver`) → Loki/Tempo/Prometheus, or **Grafana Cloud Frontend
+  Observability**. The browser-SDK-→-collector-→-dashboard *shape* is identical — that's the point.
+- So a mature frontend-perf practice runs **both**: lab (this repo's k6 browser / sitespeed) to gate
+  regressions in CI, and field/RUM (Faro/CrUX) to see what real users experience.
 
 ## Notes
 - **InfluxDB 1.8 (InfluxQL)** on purpose: JMeter's Backend Listener and k6 both write to it
@@ -237,6 +303,8 @@ Full tool + pipeline: [ShopLite-ui-perf](https://github.com/scherednychenko/Shop
 - [x] Live screenshots of all three dashboards (`docs/img/`)
 - [ ] Animated GIF of a live run
 - [x] JMeter run-vs-run comparison dashboard (runs picked by `application` tag, no time-window math)
+- [x] k6 browser Core Web Vitals dashboard (lab Web Vitals via the `k6/browser` module)
+- [x] Frontend RUM dashboard (field Core Web Vitals via the Grafana Faro Web SDK)
 
 ## One scenario, six tools — plus a shared dashboard
 
