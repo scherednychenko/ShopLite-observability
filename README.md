@@ -242,6 +242,12 @@ Two caveats worth understanding (they're the whole point of practising this):
 > `BASE_URL=https://your-site.example.com k6 cloud run tools/k6-browser-cwv.js`. Cloud runs the
 > browser remotely, so you don't even need Chromium locally.
 
+A real cloud run — all six Web Vitals **Good** at p75 and **5/5 thresholds passed** (this uses the
+portable [`browser-cwv.js`][k6cloud] in the load-test repo, since the journey above targets the
+local mock; the timeline & per-resource views are there too):
+
+![k6 Cloud — browser Core Web Vitals run (all Good, 5/5 thresholds passed)](docs/img/k6_cloud_browser_cwv.png)
+
 ### Custom listener — OK/KO schema
 A generic dashboard for any listener that writes per-sample points with field
 `response_time` and tags `status` (`OK`/`KO`), `simulation`, `env`, `sampler_type`
