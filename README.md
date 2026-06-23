@@ -30,6 +30,9 @@ a shared, real-time view — four dashboards in one **ShopLite** folder.
 - `dashboards/k6-browser-cwv.json` — **k6 browser Core Web Vitals**: LCP / INP / CLS / FCP /
   TTFB gauges scored at p75 against Google thresholds, a per-page table, and trend charts;
   fed by the `k6/browser` module (real Chromium), measurements `browser_web_vital_*`
+- `dashboards/business-ops.json` — **Business Operations**: named user-operation timings
+  (`op_login_ms`, `op_account_search_ms`) with SLO gauges + the k6 `checks` pass-rate — what
+  stakeholders track ("how long to log in / search an account"), not LCP
 - `dashboards/custom.json` — generic OK/KO listener dashboard: field `response_time`,
   tags `status` (OK/KO) / `simulation` / `env`; for any tool whose listener writes this schema
 - `dashboards/sitespeed-ui-perf.json` — sitespeed.io **Core Web Vitals** dashboard: gauges
@@ -78,6 +81,7 @@ live. They assume the sibling repos are checked out next to this one (override w
 ./tools/feed-jmeter.sh    # JMeter  → db jmeter   → "ShopLite — JMeter Performance"   (datasource: InfluxDB)
 ./tools/feed-k6.sh        # k6      → db k6       → "ShopLite — k6 Performance"        (datasource: InfluxDB-k6)
 ./tools/feed-k6-browser.sh # k6 browser → db k6  → "ShopLite — k6 Browser (Core Web Vitals)" (datasource: InfluxDB-k6)
+./tools/feed-k6-business-ops.sh # k6 business ops → db k6 → "ShopLite — Business Operations" (datasource: InfluxDB-k6)
 ./tools/feed-custom.sh        # OK/KO demo data → db custom (test ShopLiteSimulation) → "ShopLite — Custom Listener"
 ./tools/feed-locust.sh        # Locust  → db custom (test ShopLiteLocust)       → "ShopLite — Custom Listener"
 ./tools/feed-gatling-scala.sh # Gatling (Scala) → db custom (test ShopLiteGatlingScala) → "ShopLite — Custom Listener"
@@ -248,6 +252,20 @@ local mock; the timeline & per-resource views are there too):
 
 ![k6 Cloud — browser Core Web Vitals run (all Good, 5/5 thresholds passed)](docs/img/k6_cloud_browser_cwv.png)
 
+### Business operations — Checks & operation timing
+The board the *business* actually reads. Stakeholders don't track LCP — they track *"how long did it
+take a user to **log in** / **search for an account**?"*. `./tools/feed-k6-business-ops.sh` runs a
+k6 browser test that times **named operations** and writes them here: custom `Trend` metrics
+(`op_login_ms`, `op_account_search_ms`) for the **timing**, and the k6 `checks` metric for **pass/fail**.
+
+The board shows each operation's **p95 against its SLO** (< 3s) and the **checks pass-rate** — the same
+`checks` that sit next to Thresholds in the k6 Cloud results UI. The Core Web Vitals board above is the
+**diagnostics layer** underneath: when an operation's p95 creeps up, you drill into LCP/INP/network to
+find out *why*. The k6 script (and how `Trend` + `check()` + `thresholds` combine) lives in the
+load-test repo: [`business-ops.js`](https://github.com/scherednychenko/ShopLite-load-tests-k6#business-operation-timing--checks--custom-metrics).
+
+![ShopLite Business Operations dashboard — Login / Account Search p95 + checks pass-rate](docs/img/business_ops_dashboard.png)
+
 ### Custom listener — OK/KO schema
 A generic dashboard for any listener that writes per-sample points with field
 `response_time` and tags `status` (`OK`/`KO`), `simulation`, `env`, `sampler_type`
@@ -338,6 +356,7 @@ run live in **[ShopLite-load-tests-k6]**.
 - [x] JMeter run-vs-run comparison dashboard (runs picked by `application` tag, no time-window math)
 - [x] k6 browser Core Web Vitals dashboard (lab Web Vitals via the `k6/browser` module)
 - [x] Frontend RUM dashboard (field Core Web Vitals via the Grafana Faro Web SDK)
+- [x] Business Operations dashboard (named operation timings + k6 `checks`, the business view)
 
 ## One scenario, six tools — plus a shared dashboard
 
