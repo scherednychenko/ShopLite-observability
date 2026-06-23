@@ -266,6 +266,11 @@ load-test repo: [`business-ops.js`](https://github.com/scherednychenko/ShopLite-
 
 ![ShopLite Business Operations dashboard — Login / Account Search p95 + checks pass-rate](docs/img/business_ops_dashboard.png)
 
+> ▶ **The same Checks in k6 Cloud.** Run `business-ops.js` with `k6 cloud run` and the operation
+> checks land in the **Checks** view right next to **Thresholds** — exactly how a client's team reads
+> it. See the real cloud run (Login / Account Search 100% success, p95 SLOs green) with screenshots:
+> [business-ops in k6 Cloud](https://github.com/scherednychenko/ShopLite-load-tests-k6#business-operation-timing--checks--custom-metrics).
+
 ### Custom listener — OK/KO schema
 A generic dashboard for any listener that writes per-sample points with field
 `response_time` and tags `status` (`OK`/`KO`), `simulation`, `env`, `sampler_type`
